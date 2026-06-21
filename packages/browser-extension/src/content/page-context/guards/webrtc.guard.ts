@@ -33,7 +33,7 @@ export function applyWebrtcGuard(mode: string): void {
   (window as any).RTCPeerConnection = Wrapped;
   (window as any).webkitRTCPeerConnection = Wrapped;
 
-  const isRelay = (cand: string): boolean =>
+const isRelay = (cand: string): boolean =>
     /(^|\s)typ relay(\s|$)/i.test(cand);
 
   patchMethod(proto, "addEventListener", (orig) =>
