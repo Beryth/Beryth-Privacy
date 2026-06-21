@@ -7,7 +7,23 @@ export function hashString(str: string): number {
   return h >>> 0;
 }
 
-export const ORIGIN_SEED = hashString(location.origin + "::berythprivacy");
+function getSessionSalt(): string {
+  const KEY = "__gk_salt__";
+  try {
+    let s = sessionStorage.getItem(KEY);
+    if (!s) {
+      s = Array.from(crypto.getRandomValues(new Uint8Array(8)))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      sessionStorage.setItem(KEY, s);
+    }
+    return s;
+  } catch {
+    return "beryth-fallback-salt";
+  }
+}
+
+export const ORIGIN_SEED = hashString(location.origin + "::" + getSessionSalt() + "::berythprivacy");
 
 export function seededRandom(seed: number): () => number {
   let a = seed >>> 0; 
