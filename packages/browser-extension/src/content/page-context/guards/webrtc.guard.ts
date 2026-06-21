@@ -1,60 +1,51 @@
-import { defineNative } from "../utils/stealth";
+import { patchMethod } from "../utils/stealth";
 
 export function applyWebrtcGuard(mode: string): void {
   if (mode === "off") return;
-  if (typeof RTCPeerConnection === "undefined") return;
+
+  const RTC =
+    (window as any).RTCPeerConnection ||
+    (window as any).webkitRTCPeerConnection;
+  if (!RTC) return;
 
   if (mode === "block") {
-    const noop = defineNative(function () {
-      throw new DOMException("WebRTC disabled by Beryth Privacy", "NotAllowedError");
-    }, "RTCPeerConnection");
-
-    try {
-      (window as any).RTCPeerConnection = noop;
-      (window as any).webkitRTCPeerConnection = noop;
-      (window as any).RTCDataChannel = noop;
-    } catch {}
+    const blocked = function () {
+      throw new DOMException(
+        "RTCPeerConnection is not available",
+        "NotSupportedError"
+      );
+    };
+    (window as any).RTCPeerConnection = blocked;
+    (window as any).webkitRTCPeerConnection = blocked;
     return;
   }
 
-  const OrigRTC = RTCPeerConnection;
+  const proto = RTC.prototype;
 
-  function filterCandidate(sdp: string): string {
-    return sdp
-      .split("\r\n")
-      .filter((line) => {
-        if (!line.startsWith("a=candidate:")) return true;
-        return line.includes("typ relay");
-      })
-      .join("\r\n");
-  }
+  const OrigRTC = RTC;
+  const Wrapped = function (this: any, config?: RTCConfiguration) {
+    const cfg: RTCConfiguration = { ...(config || {}) };
+    cfg.iceTransportPolicy = "relay";
+    return new OrigRTC(cfg);
+  } as unknown as typeof RTCPeerConnection;
 
-  const Patched = defineNative(function (this: any, config?: RTCConfiguration) {
-    const forcedConfig: RTCConfiguration = {
-      ...(config || {}),
-      iceTransportPolicy: "relay",
-    };
-    
-    const pc = new OrigRTC(forcedConfig);
-    wrapSetLocalDescription(pc);
-    return pc;
-  }, "RTCPeerConnection") as any;
+  Wrapped.prototype = OrigRTC.prototype;
+  (window as any).RTCPeerConnection = Wrapped;
+  (window as any).webkitRTCPeerConnection = Wrapped;
 
-  function wrapSetLocalDescription(pc: RTCPeerConnection): void {
-    const origSet = pc.setLocalDescription.bind(pc);
-    pc.setLocalDescription = defineNative(async function (
-      this: RTCPeerConnection,
-      desc?: RTCLocalSessionDescriptionInit
-    ) {
-      if (desc?.sdp) {
-        desc = { ...desc, sdp: filterCandidate(desc.sdp) };
+  const isRelay = (cand: string): boolean =>
+    /(^|\s)typ relay(\s|$)/i.test(cand);
+
+  patchMethod(proto, "addEventListener", (orig) =>
+    function (this: any, type: string, listener: any, opts?: any) {
+      if (type === "icecandidate" && typeof listener === "function") {
+        const wrapped = function (ev: RTCPeerConnectionIceEvent) {
+          if (ev.candidate && !isRelay(ev.candidate.candidate)) return;
+          return listener.call(this, ev);
+        };
+        return orig.call(this, type, wrapped, opts);
       }
-      return origSet(desc as RTCLocalSessionDescriptionInit);
-    }, "setLocalDescription") as typeof pc.setLocalDescription;
-  }
-
-  Patched.prototype = OrigRTC.prototype;
-  
-  (window as any).RTCPeerConnection = Patched;
-  (window as any).webkitRTCPeerConnection = Patched;
+      return orig.call(this, type, listener, opts);
+    }
+  );
 }
