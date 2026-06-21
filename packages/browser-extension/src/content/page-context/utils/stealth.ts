@@ -32,13 +32,14 @@ Object.defineProperty(Function.prototype, "toString", {
 export function patchProperty(
   obj: object,
   prop: string,
-  getter: () => unknown
+  getter: () => unknown,
+  enumerable = false
 ): void {
   try {
     Object.defineProperty(obj, prop, {
       get: defineNative(getter, `get ${prop}`),
       configurable: true,
-      enumerable: true,
+      enumerable,
     });
   } catch {}
 }
