@@ -13,13 +13,23 @@
     "webNavigation"
   ],
   "host_permissions": ["<all_urls>"],
-  "background": { "service_worker": "background/index.js", "type": "module" },
+  "background": { 
+    "service_worker": "background/index.js", 
+    "type": "module" 
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": ["content/bridge.js"],
       "run_at": "document_start",
       "all_frames": true
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/page-context.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
     }
   ],
   "declarative_net_request": {
@@ -30,8 +40,7 @@
     ]
   },
   "options_page": "ui/options.html",
-  "action": { "default_popup": "ui/popup.html" },
-  "web_accessible_resources": [
-    { "resources": ["content/page-context.js"], "matches": ["<all_urls>"] }
-  ]
+  "action": { 
+    "default_popup": "ui/popup.html" 
+  }
 }
