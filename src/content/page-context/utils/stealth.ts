@@ -6,14 +6,32 @@ export function defineNative<T extends Function>(
   fn: T,
   name: string
 ): T {
+  try {
+    Object.defineProperty(fn, "name", {
+      value: name,
+      configurable: true,
+      writable: false,
+      enumerable: false
+    });
+  } catch {}
+
   fakeNatives.set(fn, `function ${name}() { [native code] }`);
   return fn;
 }
 
-Function.prototype.toString = defineNative(function (this: Function) {
+const fakeToString = function (this: Function) {
   if (fakeNatives.has(this)) return fakeNatives.get(this)!;
   return nativeToString.call(this);
-}, "toString");
+};
+
+defineNative(fakeToString, "toString");
+
+Object.defineProperty(Function.prototype, "toString", {
+  value: fakeToString,
+  configurable: true,
+  writable: true,
+  enumerable: false,
+});
 
 export function patchProperty(
   obj: object,
@@ -26,6 +44,5 @@ export function patchProperty(
       configurable: true,
       enumerable: true,
     });
-  } catch {
-  }
+  } catch {}
 }
