@@ -7,19 +7,23 @@ import { computeOriginSeed } from "./page-context/utils/originSeed";
       origin: location.origin,
     });
 
-    if (!config || !config.enabled) return;
+    if (!config || config.enabled === false) return;
+    if (config.overrides?.[location.origin]?.trusted) return;
 
     const seed = await computeOriginSeed(location.origin, config.salt);
 
-    const payload = JSON.stringify(config);
     const script = document.createElement("script");
-    script.textContent =
-      `window.__GK_SEED__=${seed};` +
-      `window.__GK_CONFIG__=${JSON.stringify(payload)};` +
-      `(${injectedLoader.toString()})();`;
+    script.textContent = `
+      (function() {
+        window.__GK_SEED__ = ${seed};
+        window.__GK_CONFIG__ = ${JSON.stringify(config)};
+        (${injectedLoader.toString()})();
+      })();
+    `;
+
     (document.head || document.documentElement).prepend(script);
-    script.remove();
-  } catch {
+    script.remove(); 
+  } catch (err) {
   }
 })();
 
