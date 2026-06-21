@@ -1,0 +1,56 @@
+Beryth-Privacy/
+├── README.md                           # Documentation principale du projet
+│
+├── tools/                              # Scripts utilitaires pour la maintenance
+│   ├── fetch-rules.mjs                 # Récupère les listes de blocage externes (ex: EasyList)
+│   ├── build-rules.mjs                 # Compile/optimise les règles pour declarativeNetRequest
+│   └── validate-profiles.mjs           # Valide la structure des profils de fingerprinting
+│
+└── packages/
+    └── browser-extension/              # Le code source de l'extension Chrome/Firefox
+        ├── package.json                # Dépendances locales (Vite, CRXJS, TypeScript)
+        ├── tsconfig.json               # Configuration du compilateur TypeScript
+        ├── vite.config.ts              # Configuration du bundler Vite + plugin CRXJS
+        ├── manifest.config.ts          # Générateur dynamique du Manifest V3
+        ├── manifest.json               # Fichier de déclaration de l'extension
+        │
+        └── src/                        # Code source applicatif
+            ├── background/             # Service Worker (s'exécute en arrière-plan)
+            │   ├── index.ts            # Point d'entrée du background script
+            │   ├── configResolver.ts   # Gère et applique la configuration utilisateur
+            │   ├── rulesManager.ts     # Gère le blocage réseau (declarativeNetRequest)
+            │   └── storagePolicy.ts    # Persistance des données et des statistiques
+            │
+            ├── content/                # Scripts injectés dans les pages web visitées
+            │   ├── bridge.ts           # Tunnel de communication (Page ↔ Content ↔ Background)
+            │   ├── injector.ts         # Injecte le script de "stealth" avant le chargement de la page
+            │   ├── page-context.ts     # Initialisation des protections dans le contexte global (window)
+            │   │
+            │   ├── utils/              # Moteurs cryptographiques pour le fingerprinting
+            │   │   ├── originSeed.ts   # Génère un seed unique basé sur l'origine du site
+            │   │   ├── prng.ts         # Générateur de nombres pseudo-aléatoires déterministe
+            │   │   └── stealth.ts      # Fonctions d'altération discrète des APIs
+            │   │
+            │   └── page-context/guards/ # Les "boucliers" par vecteur d'empreinte (Anti-Fingerprinting)
+            │       ├── audio.guard.ts        # Brouille l'AudioContext API
+            │       ├── canvas.guard.ts       # Ajoute du bruit discret aux rendus Canvas 2D
+            │       ├── clienthints.guard.ts  # Modifie les User-Agent Client Hints (UA-CH)
+            │       ├── fonts.guard.ts        # Bloque/leurre la détection des polices système
+            │       ├── navigator.guard.ts    # Spoofe User-Agent, HardwareConcurrency, Platform
+            │       ├── plugins.guard.ts      # Masque ou modifie navigator.plugins / mimeTypes
+            │       ├── screen.guard.ts       # Harmonise les dimensions de l'écran (Window/Screen)
+            │       ├── storage.guard.ts      # Cloisonne ou restreint les supercookies / localStorage
+            │       ├── timezone.guard.ts     # Aligne la Timezone et les Locales sur le profil choisi
+            │       ├── webgl.guard.ts        # Spoofe le renderer et les extensions WebGL
+            │       └── webrtc.guard.ts       # Empêche la fuite de l'IP réelle via l'API WebRTC
+            │
+            ├── shared/                 # Code partagé entre Background, Content et l'UI
+            │   ├── config.ts           # Types et valeurs par défaut de la configuration
+            │   ├── profiles.ts         # Profils prédéfinis (Uniform, Randomized, Strict)
+            │   └── profileValidation.ts# Schémas de validation des profils
+            │
+            └── ui/                     # Interfaces graphiques de l'extension
+                ├── options.html        # Page des options avancées (Dashboard)
+                ├── options.ts          # Logique de gestion des modules et onglets du dashboard
+                ├── popup.html          # Petite fenêtre au clic sur l'icône de l'extension
+                └── popup.ts            # Affichage des statistiques (Trackers/APIs) et switch rapide
