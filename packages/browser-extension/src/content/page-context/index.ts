@@ -9,13 +9,13 @@ import { applyFontsGuard } from "./guards/fonts.guard";
 import { applyWebrtcGuard } from "./guards/webrtc.guard";
 import { applyPluginsGuard } from "./guards/plugins.guard";
 import { applyStorageGuard } from "./guards/storage.guard";
-import { applyClientHintsGuard } from "./guards/clienthints.guard";
 
 export interface GuardConfig {
   profile: Profile;
   modes: Record<string, string>;
   enabled: boolean;
 }
+
 
 export function bootstrap(config: GuardConfig): void {
   if (!config.enabled) return;
@@ -25,16 +25,16 @@ export function bootstrap(config: GuardConfig): void {
   applyNavigatorGuard(config.profile, m.navigator ?? "uniform");
   applyScreenGuard(config.profile, m.screen ?? "uniform");
   applyTimezoneGuard(config.profile, m.timezone ?? "uniform");
-  applyClientHintsGuard(config.profile, m.clienthints ?? "uniform");
   applyPluginsGuard(m.plugins ?? "uniform");
   applyFontsGuard(config.profile, m.fonts ?? "uniform");
+
   applyCanvasGuard(m.canvas ?? "uniform");
   applyWebglGuard(config.profile, m.webgl ?? "uniform");
   applyAudioGuard(m.audio ?? "uniform");
-  applyWebrtcGuard(m.webrtc ?? "block"); 
+
+  applyWebrtcGuard(m.webrtc ?? "relay"); 
   applyStorageGuard(m.storage ?? "off"); 
 }
-
 
 declare global {
   interface Window {
@@ -46,10 +46,11 @@ declare global {
   try {
     const raw = window.__GK_CONFIG__;
     if (!raw) return;
+    
     delete window.__GK_CONFIG__;
 
     const config = JSON.parse(raw) as GuardConfig;
     bootstrap(config);
-  } catch {
+  } catch (err) {
   }
 })();
