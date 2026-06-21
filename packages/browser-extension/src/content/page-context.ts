@@ -112,7 +112,7 @@
       }
     };
 
-    const patchedToDataURL = function (this: HTMLCanvasElement, ...args: any[]) {
+    const patchedToDataURL = function (this: HTMLCanvasElement, ...args: Parameters<HTMLCanvasElement["toDataURL"]>) {
       if (block) return "data:image/png;base64,";
       const ctx = this.getContext("2d");
       if (ctx) {
@@ -123,16 +123,16 @@
         } catch {
         }
       }
-      return origToDataURL.apply(this, args as []);
+      return origToDataURL.apply(this, args);
     };
     fakeFns.add(patchedToDataURL);
     HTMLCanvasElement.prototype.toDataURL = patchedToDataURL;
 
     const patchedGetImageData = function (
       this: CanvasRenderingContext2D,
-      ...args: any[]
+      ...args: Parameters<CanvasRenderingContext2D["getImageData"]>
     ) {
-      const img = origGetImageData.apply(this, args as []);
+      const img = origGetImageData.apply(this, args);
       if (!block) perturb(img.data);
       return img;
     };
