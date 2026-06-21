@@ -39,10 +39,9 @@ export function applyWebrtcGuard(mode: string): void {
   patchMethod(proto, "addEventListener", (orig) =>
     function (this: any, type: string, listener: any, opts?: any) {
       if (type === "icecandidate" && typeof listener === "function") {
-        const wrapped = function (ev: RTCPeerConnectionIceEvent) {
-          if (ev.candidate && !isRelay(ev.candidate.candidate)) return;
-          return listener.call(this, ev);
-        };
+const wrapped = function (this: RTCPeerConnection, ev: RTCPeerConnectionIceEvent) {
+  return listener.call(this, ev);
+};
         return orig.call(this, type, wrapped, opts);
       }
       return orig.call(this, type, listener, opts);
