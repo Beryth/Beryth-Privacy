@@ -16,7 +16,7 @@ chrome.runtime.onStartup.addListener(async () => {
   await applyHeaderRules(rules);
 });
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg?.type === "GET_CONFIG_FOR_ORIGIN") {
     resolveConfigForOrigin(msg.origin).then(sendResponse);
     return true; 
