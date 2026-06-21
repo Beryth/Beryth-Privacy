@@ -76,3 +76,6 @@ export const PROFILES: Record<string, Profile> = {
     },
   },
 };
+
+export const DEFAULT_PROFILE_ID = "win-chrome-common";
+export const DEFAULT_PROFILE: Profile = PROFILES[DEFAULT_PROFILE_ID];
