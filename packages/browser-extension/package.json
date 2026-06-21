@@ -1,0 +1,20 @@
+{
+  "name": "@beryth/browser-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "build:rules": "node tools/build-rules.mjs",
+    "fetch:rules": "node tools/fetch-rules.mjs"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0",
+    "@types/chrome": "^0.0.270",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.0"
+  }
+}
