@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Beryth Privacy</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="gk-header">
+        <span class="gk-logo">Beryth Privacy</span>
+        <label class="gk-switch">
+          <input type="checkbox" id="gk-master" />
+          <span class="gk-slider"></span>
+        </label>
+      </header>
+
+      <section class="gk-stats">
+        <div class="gk-stat">
+          <span id="gk-trackers" class="gk-num">0</span>
+          <span class="gk-label">Trackers bloqués</span>
+        </div>
+        <div class="gk-stat">
+          <span id="gk-apis" class="gk-num">0</span>
+          <span class="gk-label">APIs neutralisées</span>
+        </div>
+      </section>
+
+      <section class="gk-profile">
+        <label for="gk-profile-select">Profil actif</label>
+        <select id="gk-profile-select">
+          <option value="uniform">Uniform (mimétisme)</option>
+          <option value="randomized">Randomized (cohorte)</option>
+          <option value="block">Strict (block/null)</option>
+        </select>
+      </section>
+
+      <section class="gk-site">
+        <div class="gk-site-origin" id="gk-origin">—</div>
+        <div class="gk-site-actions">
+          <button id="gk-trust" class="gk-btn">Trust ce site</button>
+          <button id="gk-compat" class="gk-btn gk-btn-ghost">
+            Compatibilité
+          </button>
+        </div>
+      </section>
+
+      <footer class="gk-footer">
+        <a id="gk-open-options" href="#">Options avancées →</a>
+      </footer>
+    </div>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
