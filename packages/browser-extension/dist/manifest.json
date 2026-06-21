@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "Beryth Privacy",
+  "version": "0.1.0",
+  "description": "Anti-fingerprinting privacy extension.",
+  "permissions": [
+    "declarativeNetRequest",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "service-worker-loader.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "assets/index.ts-loader-CNJNXFt-.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_popup": "src/ui/popup/index.html"
+  },
+  "options_page": "src/ui/options/index.html",
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "beryth_rules",
+        "enabled": true,
+        "path": "rules/rules.json"
+      }
+    ]
+  },
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "resources": [
+        "assets/index.ts-l-Ygg2hx.js"
+      ],
+      "use_dynamic_url": false
+    }
+  ]
+}
