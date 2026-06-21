@@ -1,11 +1,7 @@
 const nativeToString = Function.prototype.toString;
-
 const fakeNatives = new WeakMap<Function, string>();
 
-export function defineNative<T extends Function>(
-  fn: T,
-  name: string
-): T {
+export function defineNative<T extends Function>(fn: T, name: string): T {
   try {
     Object.defineProperty(fn, "name", {
       value: name,
@@ -30,7 +26,7 @@ Object.defineProperty(Function.prototype, "toString", {
   value: fakeToString,
   configurable: true,
   writable: true,
-  enumerable: false,
+  enumerable: false, 
 });
 
 export function patchProperty(
@@ -45,4 +41,36 @@ export function patchProperty(
       enumerable: true,
     });
   } catch {}
+}
+
+
+export function patchMethod<T extends object>(
+  obj: T,
+  key: keyof T,
+  factory: (original: any) => any
+): void {
+  try {
+    const original = (obj as any)[key];
+    const replacement = factory(original);
+    
+    if (typeof replacement === "function") {
+      defineNative(replacement, String(key));
+    }
+
+    Object.defineProperty(obj, key, {
+      value: replacement,
+      writable: true,
+      configurable: true,
+      enumerable: Object.prototype.propertyIsEnumerable.call(obj, key),
+    });
+  } catch {
+    try {
+      const original = (obj as any)[key];
+      const replacement = factory(original);
+      if (typeof replacement === "function") {
+        defineNative(replacement, String(key));
+      }
+      (obj as any)[key] = replacement;
+    } catch {}
+  }
 }
