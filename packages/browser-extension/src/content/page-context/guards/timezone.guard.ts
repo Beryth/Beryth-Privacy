@@ -8,7 +8,6 @@ export function applyTimezoneGuard(profile: Profile, mode: string): void {
   const offset = profile.timezoneOffset; 
 
   const proto = Date.prototype;
-  const origGetOffset = proto.getTimezoneOffset;
   
   proto.getTimezoneOffset = defineNative(function (this: Date) {
     return offset;
@@ -26,7 +25,7 @@ export function applyTimezoneGuard(profile: Profile, mode: string): void {
     return new OrigDTF(locales, opts);
   }, "DateTimeFormat") as unknown as typeof Intl.DateTimeFormat;
 
-  patchedDTF.prototype = OrigDTF.prototype;
+  (patchedDTF as any).prototype = OrigDTF.prototype;
   patchedDTF.supportedLocalesOf = OrigDTF.supportedLocalesOf;
   Intl.DateTimeFormat = patchedDTF;
 
