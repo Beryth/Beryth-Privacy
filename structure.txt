@@ -1,0 +1,45 @@
+├── README.md
+├── packages
+│   └── browser-extension
+│       ├── manifest.json
+│       └── src
+│           ├── background
+│           │   ├── configResolver.ts
+│           │   ├── headerMutator.ts
+│           │   ├── index.ts
+│           │   ├── rulesManager.ts
+│           │   └── storagePolicy.ts
+│           ├── content
+│           │   ├── bridge.ts
+│           │   ├── injector.ts
+│           │   ├── page-context
+│           │   │   ├── guards
+│           │   │   │   ├── audio.guard.ts
+│           │   │   │   ├── canvas.guard.ts
+│           │   │   │   ├── clienthints.guard.ts
+│           │   │   │   ├── fonts.guard.ts
+│           │   │   │   ├── navigator.guard.ts
+│           │   │   │   ├── plugins.guard.ts
+│           │   │   │   ├── screen.guard.ts
+│           │   │   │   ├── storage.guard.ts
+│           │   │   │   ├── timezone.guard.ts
+│           │   │   │   ├── webgl.guard.ts
+│           │   │   │   └── webrtc.guard.ts
+│           │   │   ├── index.ts
+│           │   │   └── utils
+│           │   │       ├── originSeed.ts
+│           │   │       ├── prng.ts
+│           │   │       └── stealth.ts
+│           │   └── page-context.ts
+│           ├── shared
+│           │   ├── config.ts
+│           │   └── profiles.ts
+│           └── ui
+│               ├── options.html
+│               ├── options.ts
+│               ├── popup.html
+│               └── popup.ts
+├── structure.txt
+└── tools
+    ├── build-rules.mjs
+    └── fetch-rules.mjs
