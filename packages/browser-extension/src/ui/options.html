@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="options.css" />
+    <title>Beryth Privacy — Options</title>
+  </head>
+  <body>
+    <nav class="gk-tabs">
+      <button class="gk-tab active" data-tab="profiles">Profils</button>
+      <button class="gk-tab" data-tab="modules">Modules</button>
+      <button class="gk-tab" data-tab="rules">Règles</button>
+      <button class="gk-tab" data-tab="audit">Audit</button>
+    </nav>
+
+    <main>
+      <section id="tab-profiles" class="gk-panel active">
+        <h2>Profils</h2>
+        <p class="gk-hint">
+          Un profil est un bloc de valeurs cohérentes. Ne mélange jamais un
+          profil avec tes vraies valeurs.
+        </p>
+        <div id="gk-profile-list"></div>
+        <button id="gk-add-profile" class="gk-btn">+ Nouveau profil</button>
+      </section>
+
+      <section id="tab-modules" class="gk-panel">
+        <h2>Modules</h2>
+        <p class="gk-hint">
+          Chaque vecteur peut être en Normalize, Randomize ou Block.
+        </p>
+        <div id="gk-modules-list"></div>
+      </section>
+
+      <section id="tab-rules" class="gk-panel">
+        <h2>Règles &amp; listes</h2>
+        <div id="gk-rules-status"></div>
+        <button id="gk-update-rules" class="gk-btn">Mettre à jour</button>
+      </section>
+
+      <section id="tab-audit" class="gk-panel">
+        <h2>Audit</h2>
+        <p class="gk-hint">
+          Estimation locale de ton empreinte. Plus les bits sont bas, mieux
+          c'est.
+        </p>
+        <div id="gk-audit-report"></div>
+        <button id="gk-run-audit" class="gk-btn">Lancer un audit</button>
+      </section>
+    </main>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>
