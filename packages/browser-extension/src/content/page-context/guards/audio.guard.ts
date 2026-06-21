@@ -1,60 +1,54 @@
-import { seededRandom, ORIGIN_SEED } from "../utils/prng";
-import { defineNative } from "../utils/stealth";
+import { ORIGIN_SEED, seededRandom } from "../utils/prng";
+import { patchMethod } from "../utils/stealth";
 
 export function applyAudioGuard(mode: string): void {
   if (mode === "off") return;
 
-  const block = mode === "block";
-  const rand = seededRandom(ORIGIN_SEED ^ 0xa0d10);
+  const rnd = seededRandom(ORIGIN_SEED ^ 0x4155_4449);
 
-  const noise = () => (rand() - 0.5) * 1e-7;
+  const noise = (): number => (rnd() - 0.5) * 1e-7;
 
-  if (typeof AnalyserNode !== "undefined") {
-    const origGetFloat = AnalyserNode.prototype.getFloatFrequencyData;
-    AnalyserNode.prototype.getFloatFrequencyData = defineNative(function (
-      this: AnalyserNode,
-      array: Float32Array
-    ) {
-      origGetFloat.call(this, array);
-      if (block) {
-        array.fill(-Infinity); 
-        return;
+  const AnalyserProto =
+    typeof AnalyserNode !== "undefined" ? AnalyserNode.prototype : null;
+
+  if (AnalyserProto) {
+    patchMethod(AnalyserProto, "getFloatFrequencyData", (orig) =>
+      function (this: AnalyserNode, array: Float32Array) {
+        orig.call(this, array);
+        for (let i = 0; i < array.length; i++) array[i] += noise();
       }
-      for (let i = 0; i < array.length; i++) {
-        array[i] += noise();
+    );
+
+    patchMethod(AnalyserProto, "getByteFrequencyData", (orig) =>
+      function (this: AnalyserNode, array: Uint8Array) {
+        orig.call(this, array);
+        for (let i = 0; i < array.length; i++) {
+          const v = array[i] + (rnd() < 0.5 ? 0 : 1);
+          array[i] = v > 255 ? 255 : v;
+        }
       }
-    }, "getFloatFrequencyData") as typeof origGetFloat;
+    );
   }
 
   if (typeof AudioBuffer !== "undefined") {
-    
-    const origGetChannel = AudioBuffer.prototype.getChannelData;
-    AudioBuffer.prototype.getChannelData = defineNative(function (
-      this: AudioBuffer,
-      channel: number
-    ) {
-      const data = origGetChannel.call(this, channel);
-      if (block) return data; 
-      
-      for (let i = 0; i < data.length; i += 100) {
-        data[i] += noise();
+    patchMethod(AudioBuffer.prototype, "getChannelData", (orig) =>
+      function (this: AudioBuffer, channel: number) {
+        const data = orig.call(this, channel) as Float32Array;
+        for (let i = 0; i < data.length; i += 97) data[i] += noise();
+        return data;
       }
-      return data;
-    }, "getChannelData") as typeof origGetChannel;
+    );
 
-    const origCopyFromChannel = AudioBuffer.prototype.copyFromChannel;
-    AudioBuffer.prototype.copyFromChannel = defineNative(function (
-      this: AudioBuffer,
-      destination: Float32Array,
-      channelNumber: number,
-      bufferOffset?: number
-    ) {
-      origCopyFromChannel.call(this, destination, channelNumber, bufferOffset);
-      if (!block) {
-        for (let i = 0; i < destination.length; i += 100) {
-          destination[i] += noise();
-        }
+    patchMethod(AudioBuffer.prototype, "copyFromChannel", (orig) =>
+      function (
+        this: AudioBuffer,
+        dest: Float32Array,
+        channel: number,
+        start?: number
+      ) {
+        orig.call(this, dest, channel, start);
+        for (let i = 0; i < dest.length; i += 97) dest[i] += noise();
       }
-    }, "copyFromChannel") as typeof origCopyFromChannel;
+    );
   }
 }
